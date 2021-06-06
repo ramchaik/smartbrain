@@ -15,21 +15,10 @@ const app = new Clarifai.App({
 const particlesOptions = {
   particles: {
     number: {
-      value: 30,
+      value: 80,
       density: {
         enable: true,
         value_area: 800,
-      },
-    },
-    size: {
-      value: 1,
-    },
-  },
-  interactivity: {
-    events: {
-      onhover: {
-        enable: true,
-        mode: "repulse",
       },
     },
   },
@@ -41,8 +30,25 @@ class App extends Component {
     this.state = {
       input: "",
       imageURL: "",
+      box: {},
     };
   }
+
+  calculateFaceLocation = (data) => {
+    const face = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById("input-image");
+    const width = Number(image.width);
+    const height = Number(image.height);
+
+    return {
+      leftCol: face.left_col * width,
+      topRow: face.top_row * height,
+      rightCol: width - face.right_col * width,
+      bottomRow: height - face.bottom_row * height,
+    };
+  };
+
+  displayFaceBox = (box) => this.setState({ box });
 
   onInputChange = (event) => {
     this.setState({ input: event.target.value });
@@ -55,8 +61,8 @@ class App extends Component {
         Clarifai.FACE_DETECT_MODEL,
         this.state.input
       );
-      const data = resp.outputs[0].data.regions[0].region_info.bounding_box;
-      console.log({ data });
+
+      this.displayFaceBox(this.calculateFaceLocation(resp));
     } catch (error) {
       console.log(error);
     }
@@ -73,7 +79,7 @@ class App extends Component {
           onInputChange={this.onInputChange}
           onSubmitChange={this.onSubmitChange}
         />
-        <FaceRecognition imageURL={this.state.imageURL} />
+        <FaceRecognition box={this.state.box} imageURL={this.state.imageURL} />
       </div>
     );
   }
