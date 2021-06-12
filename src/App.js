@@ -42,12 +42,23 @@ class App extends Component {
       box: {},
       route: ROUTES.signin,
       isSignedIn: false,
+      user: {
+        id: "",
+        name: "",
+        email: "",
+        entries: 0,
+        joined: 0,
+      },
     };
   }
 
   componentDidMount() {
-    fetch('http://localhost:3000/').then(res => res.json()).then(console.log)
+    fetch("http://localhost:3000/")
+      .then((res) => res.json())
+      .then(console.log);
   }
+
+  loadUser = (user) => this.setState({ user });
 
   onRouteChange = (route) => () => {
     if (route === ROUTES.home) {
@@ -115,7 +126,7 @@ class App extends Component {
             <FaceRecognition box={box} imageURL={imageURL} />
           </>
         ) : route === ROUTES.register ? (
-          <Register onRouteChange={this.onRouteChange} ROUTES={ROUTES} />
+          <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} ROUTES={ROUTES} />
         ) : (
           <Signin onRouteChange={this.onRouteChange} ROUTES={ROUTES} />
         )}
