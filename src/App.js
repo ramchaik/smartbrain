@@ -107,6 +107,21 @@ class App extends Component {
         this.state.input
       );
 
+      if (resp) {
+        fetch("http://localhost:3000/image", {
+          method: "put",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: this.state.user.id,
+          }),
+        })
+          .then((res) => res.json())
+          .then((count) =>
+            this.setState({ user: { ...this.state.user, entries: count } })
+          )
+          .catch(alert);
+      }
+
       this.displayFaceBox(this.calculateFaceLocation(resp));
     } catch (error) {
       console.log(error);
