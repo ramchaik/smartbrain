@@ -58,7 +58,16 @@ class App extends Component {
       .then(console.log);
   }
 
-  loadUser = (user) => this.setState({ user });
+  loadUser = (user) =>
+    this.setState({
+      user: {
+        email: user.email,
+        entries: user.entries,
+        id: user.id,
+        joined: user.joined,
+        name: user.name,
+      },
+    });
 
   onRouteChange = (route) => () => {
     if (route === ROUTES.home) {
@@ -105,7 +114,7 @@ class App extends Component {
   };
 
   render() {
-    const { isSignedIn, box, imageURL, route } = this.state;
+    const { isSignedIn, box, imageURL, route, user } = this.state;
 
     return (
       <div className="App">
@@ -118,7 +127,7 @@ class App extends Component {
         {route === ROUTES.home ? (
           <>
             <Logo />
-            <Rank />
+            <Rank name={user.name} entries={user.entries} />
             <ImageLinkForm
               onInputChange={this.onInputChange}
               onSubmitChange={this.onSubmitChange}
@@ -126,9 +135,17 @@ class App extends Component {
             <FaceRecognition box={box} imageURL={imageURL} />
           </>
         ) : route === ROUTES.register ? (
-          <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} ROUTES={ROUTES} />
+          <Register
+            loadUser={this.loadUser}
+            onRouteChange={this.onRouteChange}
+            ROUTES={ROUTES}
+          />
         ) : (
-          <Signin onRouteChange={this.onRouteChange} ROUTES={ROUTES} />
+          <Signin
+            loadUser={this.loadUser}
+            onRouteChange={this.onRouteChange}
+            ROUTES={ROUTES}
+          />
         )}
       </div>
     );

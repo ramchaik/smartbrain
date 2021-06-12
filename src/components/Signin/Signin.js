@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Signin = ({ onRouteChange, ROUTES }) => {
+const Signin = ({ loadUser, onRouteChange, ROUTES }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -33,13 +33,15 @@ const Signin = ({ onRouteChange, ROUTES }) => {
       }),
     })
       .then((res) => res.json())
-      .then((data) => {
-        if (data === "success") {
+      .then((user) => {
+        if (user.id) {
+          loadUser(user);
+
           onRouteChange(ROUTES.home)();
           return;
         }
 
-        alert(data);
+        alert("NOT FOUND");
         onRouteChange(ROUTES.signout)();
       })
       .catch(alert);
