@@ -1,4 +1,3 @@
-import Clarifai from "clarifai";
 import React, { Component } from "react";
 import Particles from "react-particles-js";
 import "./App.css";
@@ -9,10 +8,6 @@ import Navigation from "./components/Navigation/Navigation";
 import Rank from "./components/Rank/Rank";
 import Register from "./components/Register/Register";
 import Signin from "./components/Signin/Signin";
-
-const app = new Clarifai.App({
-  apiKey: process.env.REACT_APP_CLARIFAI_API_KEY,
-});
 
 const ROUTES = {
   signin: "signin",
@@ -104,27 +99,31 @@ class App extends Component {
   onSubmitChange = async (event) => {
     this.setState({ imageURL: this.state.input });
     try {
-      const resp = await app.models.predict(
-        Clarifai.FACE_DETECT_MODEL,
-        this.state.input
-      );
+      fetch("http://localhost:3000/imageurl", {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input: this.state.input,
+        }),
+      })
+        .then((res) => res.json())
+        .then((resp) => {
+          fetch("http://localhost:3000/image", {
+            method: "put",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: this.state.user.id,
+            }),
+          })
+            .then((res) => res.json())
+            .then((count) =>
+              this.setState({ user: { ...this.state.user, entries: count } })
+            )
+            .catch(alert);
 
-      if (resp) {
-        fetch("http://localhost:3000/image", {
-          method: "put",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id: this.state.user.id,
-          }),
+          this.displayFaceBox(this.calculateFaceLocation(resp));
         })
-          .then((res) => res.json())
-          .then((count) =>
-            this.setState({ user: { ...this.state.user, entries: count } })
-          )
-          .catch(alert);
-      }
-
-      this.displayFaceBox(this.calculateFaceLocation(resp));
+        .catch(alert);
     } catch (error) {
       console.log(error);
     }
